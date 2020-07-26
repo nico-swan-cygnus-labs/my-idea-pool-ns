@@ -1,0 +1,930 @@
+{
+	"info": {
+		"_postman_id": "84687448-fa31-4104-8f39-277b44f83602",
+		"name": "My Idea Pool",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "index",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Access-Token",
+						"type": "text",
+						"value": "",
+						"disabled": true
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Host",
+						"type": "text",
+						"value": "{{host}}"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User - Sign up",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0f438ddc-c7de-4f44-867f-9bdf08a3c737",
+						"exec": [
+							"var randomUser = true;\r",
+							"\r",
+							"if(randomUser) {\r",
+							"    pm.environment.set('emailAddress', pm.variables.replaceIn('{{$randomEmail}}'));\r",
+							"    pm.environment.set('userName', pm.variables.replaceIn('{{$randomFullName}}'));\r",
+							"    pm.environment.set('userPassword', pm.variables.replaceIn('{{$randomPassword}}'));\r",
+							"} else {\r",
+							"    pm.environment.set('emailAddress', 'test2@user.com');\r",
+							"    pm.environment.set('userName', pm.variables.replaceIn('{{$randomFullName}}'));\r",
+							"    pm.environment.set('userPassword', 'TestPassword');\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "7c544608-2a50-4fd4-b400-746486392469",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable('access_token', jsonData.jwt);\r",
+							"postman.setEnvironmentVariable('refresh_token', jsonData.refresh_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Access-Token",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Host",
+						"type": "text",
+						"value": "{{host}}"
+					},
+					{
+						"key": "x-debug-show-stack-trace",
+						"type": "text",
+						"value": "true",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\" : \"{{emailAddress}}\",\r\n  \"name\" : \"{{userName}}\",\r\n  \"password\": \"{{userPassword}}\"\r\n}"
+				},
+				"url": {
+					"raw": "{{url}}/users",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Access Token -  User Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1d2c9e80-6af4-4682-841e-9343a9490d02",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable('access_token', jsonData.jwt);\r",
+							"postman.setEnvironmentVariable('refresh_token', jsonData.refresh_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Host",
+						"value": "example.org",
+						"type": "text"
+					},
+					{
+						"key": "x-debug-show-stack-trace",
+						"value": "true",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\" : \"test2@user.com\",\r\n    \"password\" : \"TestPassword\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/access-tokens",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"access-tokens"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Access Token -  Logout",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "2386fc94-4e7a-4172-bdca-1c61c4bc9231",
+						"exec": [
+							"var userSignUp =  { \r",
+							"    \"email\" : pm.variables.replaceIn('{{$randomEmail}}'),\r",
+							"    \"password\" : \"TestPass@1\",\r",
+							"    \"name\" : pm.variables.replaceIn('{{$randomFullName}}')\r",
+							"    }; \r",
+							"console.log(userSignUp);\r",
+							"var requestSignuUp = function(userBody) {\r",
+							"    pm.sendRequest({\r",
+							"        url: pm.environment.get('url') + '/users',\r",
+							"        method: 'POST',\r",
+							"        header: {\r",
+							"            'content-type': 'application/json'\r",
+							"        },\r",
+							"        body: {\r",
+							"            mode: 'raw',\r",
+							"            raw: JSON.stringify(userSignUp)\r",
+							"        }\r",
+							"    }, function (err, res) {\r",
+							"        var token = res.json();\r",
+							"        console.log(token);\r",
+							"        pm.environment.set('access_token', token.jwt );\r",
+							"        pm.environment.set('refresh_token', token.refresh_token );\r",
+							"    });\r",
+							"}\r",
+							"\r",
+							"requestSignuUp(userSignUp);   "
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Host",
+						"value": "example.org",
+						"type": "text"
+					},
+					{
+						"key": "X-Access-Token",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					},
+					{
+						"key": "x-debug-show-stack-trace",
+						"value": "true",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"refresh_token\": \"{{refresh_token}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/access-tokens",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"access-tokens"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Access Token - Refresh",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2ef5bedc-6d7f-44fe-8142-9b99902ce75f",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable('access_token', jsonData.jwt);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Host",
+						"value": "example.org",
+						"type": "text"
+					},
+					{
+						"key": "X-Access-Token",
+						"value": "Bearer {{access_token}}",
+						"type": "text"
+					},
+					{
+						"key": "x-debug-show-stack-trace",
+						"value": "true",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"refresh_token\": \"{{refresh_token}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/access-tokens/refresh",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"access-tokens",
+						"refresh"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User - me",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "ec5811f3-1d95-4024-b61a-ffad6c8ee031",
+						"exec": [
+							"var requestTokens = false;\r",
+							"var signUp = false;\r",
+							"\r",
+							"var userSignIn = {\r",
+							"    \"email\" : \"test2@user.com\",\r",
+							"    \"password\" : \"TestPassword\"\r",
+							"};\r",
+							"\r",
+							"var userSignUp =  { \r",
+							"    \"email\" : pm.variables.replaceIn('{{$randomEmail}}'),\r",
+							"    \"password\" : \"TestPass@1\",\r",
+							"    \"name\" : pm.variables.replaceIn('{{$randomFullName}}')\r",
+							"    };\r",
+							"\r",
+							"var uri;\r",
+							"var payload;\r",
+							"if (signUp) {\r",
+							"    console.log(userSignUp);\r",
+							"    uri =  pm.environment.get('url') + '/users';\r",
+							"    payload = JSON.stringify(userSignUp);\r",
+							"} else {\r",
+							"    console.log(userSignIn);\r",
+							"    uri = pm.environment.get('url') + '/access-tokens';\r",
+							"    payload = JSON.stringify(userSignIn);\r",
+							"}\r",
+							"\r",
+							"var makeRequest = function(payloadStr) {\r",
+							"    console.log(payloadStr);\r",
+							"    pm.sendRequest({\r",
+							"        url: uri,\r",
+							"        method: 'POST',\r",
+							"        header: {\r",
+							"            'content-type': 'application/json'\r",
+							"        },\r",
+							"        body: {\r",
+							"            mode: 'raw',\r",
+							"            raw: payloadStr\r",
+							"        }\r",
+							"    }, function (err, res) {\r",
+							"        var token = res.json();\r",
+							"        console.log(token);\r",
+							"        pm.environment.set('access_token', token.jwt );\r",
+							"        pm.environment.set('refresh_token', token.refresh_token );\r",
+							"    });\r",
+							"}\r",
+							"\r",
+							"if (requestTokens) {\r",
+							"    console.log(uri);\r",
+							"    makeRequest(payload);\r",
+							"}   \r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Access-Token",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Host",
+						"type": "text",
+						"value": "{{host}}"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-debug-show-stack-trace",
+						"value": "true",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/me",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"me"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ideas - Add",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "d6f00c9f-1432-4e90-8908-3e24032246d0",
+						"exec": [
+							"var requestTokens = false;\r",
+							"\r",
+							"pm.environment.set('impact_number', _.random(1, 10));\r",
+							"pm.environment.set('ease_number', _.random(1, 10));\r",
+							"pm.environment.set('confidence_number', _.random(1, 10));\r",
+							"var userlogin =  { \r",
+							"    \"email\" : \"test2@user.com\",\r",
+							"    \"password\" : \"TestPassword\"\r",
+							"    }; \r",
+							"if(requestTokens) {\r",
+							"    pm.sendRequest({\r",
+							"        url: pm.environment.get('url') + '/access-tokens',\r",
+							"        method: 'POST',\r",
+							"        header: {\r",
+							"            'content-type': 'application/json'\r",
+							"        },\r",
+							"        body: {\r",
+							"            mode: 'raw',\r",
+							"            raw: JSON.stringify(userlogin)\r",
+							"        }\r",
+							"    }, function (err, res) {\r",
+							"        var token = res.json();\r",
+							"        pm.environment.set('access_token', token.jwt );\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "27ac5766-5026-419c-9893-27ae9df2232d",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);\r",
+							"postman.setEnvironmentVariable('lastIdeaId', jsonData.id);\r",
+							"postman.setEnvironmentVariable('lastIdeaAvgScore', jsonData.average_score);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Access-Token",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Host",
+						"type": "text",
+						"value": "{{host}}"
+					},
+					{
+						"key": "x-debug-show-stack-trace",
+						"value": "true",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"content\": \"{{$randomCatchPhrase}}\",\r\n    \"impact\": {{impact_number}},\r\n    \"ease\": {{ease_number}},\r\n    \"confidence\": {{confidence_number}}\r\n}"
+				},
+				"url": {
+					"raw": "{{url}}/ideas",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"ideas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ideas - Update",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "d6f00c9f-1432-4e90-8908-3e24032246d0",
+						"exec": [
+							"var requestTokens = false;\r",
+							"pm.environment.set('impact_number', _.random(1, 10));\r",
+							"pm.environment.set('ease_number', _.random(1, 10));\r",
+							"pm.environment.set('confidence_number', _.random(1, 10));\r",
+							"pm.environment.set('randomCatchPhrase', pm.variables.replaceIn('{{$randomCatchPhrase}}'));\r",
+							"\r",
+							"var userlogin =  { \r",
+							"    \"email\" : \"test2@user.com\",\r",
+							"    \"password\" : \"TestPassword\"\r",
+							"    }; \r",
+							"if(requestTokens) {    \r",
+							"    pm.sendRequest({\r",
+							"        url: pm.environment.get('url') + '/access-tokens',\r",
+							"        method: 'POST',\r",
+							"        header: {\r",
+							"            'content-type': 'application/json'\r",
+							"        },\r",
+							"        body: {\r",
+							"            mode: 'raw',\r",
+							"            raw: JSON.stringify(userlogin)\r",
+							"        }\r",
+							"    }, function (err, res) {\r",
+							"        var token = res.json();\r",
+							"        pm.environment.set('access_token', token.jwt );\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "X-Access-Token",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Host",
+						"type": "text",
+						"value": "{{host}}"
+					},
+					{
+						"key": "x-debug-show-stack-trace",
+						"value": "true",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"content\": \"{{randomCatchPhrase}}\",\r\n    \"impact\": {{impact_number}},\r\n    \"ease\": {{ease_number}},\r\n    \"confidence\": {{confidence_number}}\r\n}"
+				},
+				"url": {
+					"raw": "{{url}}/ideas/{{lastIdeaId}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"ideas",
+						"{{lastIdeaId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Users - Delete",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Host",
+						"type": "text",
+						"value": "example.org"
+					},
+					{
+						"key": "x-debug-show-stack-trace",
+						"type": "text",
+						"value": "true",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"email-1@test.com\",\r\n  \"password\": \"the-Secret-123\",\r\n  \"name\" : \"Test2 User\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/users",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ideas - Delete",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "d6f00c9f-1432-4e90-8908-3e24032246d0",
+						"exec": [
+							"var requestTokens = false;\r",
+							"pm.environment.set('impact_number', _.random(1, 10));\r",
+							"pm.environment.set('ease_number', _.random(1, 10));\r",
+							"pm.environment.set('confidence_number', _.random(1, 10));\r",
+							"pm.environment.set('randomCatchPhrase', pm.variables.replaceIn('{{$randomCatchPhrase}}'));\r",
+							"\r",
+							"var userlogin =  { \r",
+							"    \"email\" : \"test2@user.com\",\r",
+							"    \"password\" : \"TestPassword\"\r",
+							"    }; \r",
+							"if(requestTokens) {   \r",
+							"    pm.sendRequest({\r",
+							"        url: pm.environment.get('url') + '/access-tokens',\r",
+							"        method: 'POST',\r",
+							"        header: {\r",
+							"            'content-type': 'application/json'\r",
+							"        },\r",
+							"        body: {\r",
+							"            mode: 'raw',\r",
+							"            raw: JSON.stringify(userlogin)\r",
+							"        }\r",
+							"    }, function (err, res) {\r",
+							"        var token = res.json();\r",
+							"        pm.environment.set('access_token', token.jwt );\r",
+							"})\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "X-Access-Token",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Host",
+						"type": "text",
+						"value": "{{host}}"
+					},
+					{
+						"key": "x-debug-show-stack-trace",
+						"value": "true",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/ideas/{{lastIdeaId}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"ideas",
+						"{{lastIdeaId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ideas - Get One idea",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "d6f00c9f-1432-4e90-8908-3e24032246d0",
+						"exec": [
+							"var requestTokens = false;\r",
+							"pm.environment.set('impact_number', _.random(1, 10));\r",
+							"pm.environment.set('ease_number', _.random(1, 10));\r",
+							"pm.environment.set('confidence_number', _.random(1, 10));\r",
+							"pm.environment.set('randomCatchPhrase', pm.variables.replaceIn('{{$randomCatchPhrase}}'));\r",
+							"\r",
+							"var userlogin =  { \r",
+							"    \"email\" : \"test2@user.com\",\r",
+							"    \"password\" : \"TestPassword\"\r",
+							"    }; \r",
+							"if(requestTokens) {\r",
+							"    pm.sendRequest({\r",
+							"        url: pm.environment.get('url') + '/access-tokens',\r",
+							"        method: 'POST',\r",
+							"        header: {\r",
+							"            'content-type': 'application/json'\r",
+							"        },\r",
+							"        body: {\r",
+							"            mode: 'raw',\r",
+							"            raw: JSON.stringify(userlogin)\r",
+							"        }\r",
+							"    }, function (err, res) {\r",
+							"        var token = res.json();\r",
+							"        pm.environment.set('access_token', token.jwt );\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Access-Token",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Host",
+						"type": "text",
+						"value": "{{host}}"
+					},
+					{
+						"key": "x-debug-show-stack-trace",
+						"value": "true",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/ideas/{{lastIdeaId}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"ideas",
+						"{{lastIdeaId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ideas - Get Ideas",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "d6f00c9f-1432-4e90-8908-3e24032246d0",
+						"exec": [
+							"var requestTokens = false;\r",
+							"pm.environment.set('impact_number', _.random(1, 10));\r",
+							"pm.environment.set('ease_number', _.random(1, 10));\r",
+							"pm.environment.set('confidence_number', _.random(1, 10));\r",
+							"pm.environment.set('randomCatchPhrase', pm.variables.replaceIn('{{$randomCatchPhrase}}'));\r",
+							"\r",
+							"var userlogin =  { \r",
+							"    \"email\" : \"test2@user.com\",\r",
+							"    \"password\" : \"TestPassword\"\r",
+							"    }; \r",
+							"if (requestTokens) {\r",
+							"    pm.sendRequest({\r",
+							"        url: pm.environment.get('url') + '/access-tokens',\r",
+							"        method: 'POST',\r",
+							"        header: {\r",
+							"            'content-type': 'application/json'\r",
+							"        },\r",
+							"        body: {\r",
+							"            mode: 'raw',\r",
+							"            raw: JSON.stringify(userlogin)\r",
+							"        }\r",
+							"    }, function (err, res) {\r",
+							"        var token = res.json();\r",
+							"        pm.environment.set('access_token', token.jwt );\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Access-Token",
+						"type": "text",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Host",
+						"type": "text",
+						"value": "{{host}}"
+					},
+					{
+						"key": "x-debug-show-stack-trace",
+						"value": "true",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/ideas",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"ideas"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
